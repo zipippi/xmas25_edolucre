@@ -78,7 +78,7 @@
     function render(){
       const q = questions[idx];
       document.getElementById("app").innerHTML = `
-        ${header(`Edo, modalità “Milionario” 😈 — Domanda ${idx+1}/10. Serve almeno 7/10.`)}
+        ${header(`Edo sei alla domanda ${idx+1}/10. Ne servono almeno 7 per ottenere il codice.`)}
         <div class="card">
           <h2>Quiz di Edo</h2>
           <div class="q">${q.q}</div>
@@ -86,10 +86,9 @@
             ${q.a.map((t,i)=>`<button onclick="answer(${i})">${String.fromCharCode(65+i)}. ${t}</button>`).join("")}
           </div>
           <div class="meta">
-            <div class="pill">Punteggio: <b>${score}</b></div>
-            <div class="pill">Progress: <b>${idx+1}/10</b></div>
+            <div class="pill">Corrette: <b>${score}</b></div>
+            <div class="pill">Domanda: <b>${idx+1}/10</b></div>
           </div>
-          <p class="small">Occhio: alcune risposte sono “quasi giuste”.</p>
         </div>`;
     }
 
