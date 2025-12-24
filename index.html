@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Quiz & Cassaforte</title>
+  <style>
+    body{font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto;margin:0;background:#0f0f10;color:#fff;text-align:center}
+    a{color:inherit;text-decoration:none}
+    button{padding:12px 18px;border:0;border-radius:12px;font-size:18px;margin:8px;background:#2a2a2e;color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.35)}
+    button:active{transform:translateY(1px)}
+    .card{padding:18px 16px;max-width:520px;margin:0 auto}
+
+    .host{display:flex;align-items:center;gap:12px;justify-content:center;margin:10px auto 14px;max-width:520px}
+    .bubble{background:#1b1b1f;border:1px solid #2f2f36;border-radius:16px;padding:10px 12px;text-align:left;box-shadow:0 10px 22px rgba(0,0,0,.35)}
+    .bubble b{display:block;margin-bottom:4px}
+    .avatar{width:72px;height:72px;border-radius:18px;background:#1b1b1f;border:1px solid #2f2f36;display:grid;place-items:center;box-shadow:0 10px 22px rgba(0,0,0,.35)}
+
+    /* Cassaforte */
+    .safe-wrap{max-width:520px;margin:0 auto}
+    .safe{
+      margin:18px auto 10px;
+      width:min(92vw,340px);
+      aspect-ratio:1/1;
+      background:linear-gradient(145deg,#3a3a40,#1f1f24);
+      border:10px solid #666;
+      border-radius:22px;
+      position:relative;
+      box-shadow:inset 0 0 0 2px rgba(255,255,255,.05), 0 18px 40px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .safe:before{content:"";position:absolute;inset:14px;border-radius:16px;border:2px solid rgba(255,255,255,.08)}
+    .hinge{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:120px;background:#2a2a2e;border-radius:10px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.06)}
+    .dial{position:absolute;right:18px;top:52px;width:110px;height:110px;border-radius:999px;background:radial-gradient(circle at 30% 30%,#666,#2a2a2e 60%,#151517 100%);border:4px solid rgba(255,255,255,.12);box-shadow:inset 0 0 0 3px rgba(0,0,0,.45);display:grid;place-items:center}
+    .dial:after{content:"";width:10px;height:10px;border-radius:999px;background:#0f0f10;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+    .display{position:absolute;left:22px;top:26px;right:22px;background:#050506;border:2px solid rgba(255,255,255,.08);color:#2bff4a;font-size:34px;padding:12px 10px;border-radius:14px;letter-spacing:.18em;text-shadow:0 0 10px rgba(43,255,74,.25)}
+    .kbd{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:340px;margin:12px auto 0}
+    .kbd button{margin:0}
+    .hint{opacity:.9;font-size:14px;margin-top:10px}
+
+    /* Animazione apertura */
+    .safe-anim{margin:14px auto 0; width:min(92vw,360px)}
+    .safe-stage{position:relative; width:min(92vw,340px); aspect-ratio:1/1; margin:0 auto;}
+    .door{
+      position:absolute; inset:0;
+      border-radius:22px;
+      background:linear-gradient(145deg,#4a4a52,#232329);
+      border:10px solid rgba(255,255,255,.10);
+      box-shadow:inset 0 0 0 2px rgba(0,0,0,.35);
+      transform-origin:left center;
+      transform:perspective(900px) rotateY(0deg);
+    }
+    .door:before{content:"";position:absolute;inset:14px;border-radius:16px;border:2px solid rgba(255,255,255,.10)}
+    .door .dial{right:22px; top:58px; transform:scale(.95)}
+    .door .display{left:26px; right:26px; top:30px; font-size:30px}
+    .door .bolt{position:absolute; left:22px; bottom:26px; width:86px; height:14px; border-radius:999px; background:#1b1b1f; border:1px solid rgba(255,255,255,.10)}
+
+    .open .door{animation:openDoor 1.25s cubic-bezier(.2,.85,.2,1) forwards}
+    @keyframes openDoor{
+      0%{transform:perspective(900px) rotateY(0deg)}
+      60%{transform:perspective(900px) rotateY(-70deg)}
+      100%{transform:perspective(900px) rotateY(-92deg)}
+    }
+
+    /* Voucher */
+    .voucher{
+      margin:18px auto 0;
+      max-width:380px;
+      background:linear-gradient(180deg,#1a1a1e,#131316);
+      border:2px dashed rgba(255,255,255,.35);
+      border-radius:18px;
+      padding:16px;
+      position:relative;
+      text-align:left;
+      box-shadow:0 18px 40px rgba(0,0,0,.55);
+    }
+    .voucher .topline{font-size:12px;letter-spacing:.16em;opacity:.8}
+    .voucher .title{font-size:22px;margin-top:8px}
+    .voucher .place{font-size:18px;margin-top:6px}
+    .voucher .note{font-size:13px;margin-top:10px;opacity:.85;line-height:1.35}
+
+    .stamp{
+      position:absolute;
+      right:14px; top:14px;
+      width:94px; height:94px;
+      border-radius:999px;
+      border:3px solid rgba(255,80,80,.9);
+      box-shadow:0 0 0 3px rgba(0,0,0,.25), 0 10px 20px rgba(0,0,0,.35);
+      transform:rotate(-12deg);
+      display:grid; place-items:center;
+      opacity:.95;
+    }
+    .stamp span{font-weight:800; font-size:11px; letter-spacing:.18em; color:rgba(255,80,80,.95); text-align:center; line-height:1.1}
+    .stamp:before{content:""; position:absolute; inset:8px; border-radius:999px; border:2px dashed rgba(255,80,80,.85)}
+
+    .fakeqr{
+      position:absolute;
+      right:16px; bottom:14px;
+      width:72px; height:72px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.12) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.12) 75%, transparent 75%) 0 0/12px 12px,
+        linear-gradient(0deg, rgba(255,255,255,.10) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.10) 50%, rgba(255,255,255,.10) 75%, transparent 75%) 0 0/12px 12px;
+      border:1px solid rgba(255,255,255,.22);
+      border-radius:10px;
+      box-shadow:inset 0 0 0 2px rgba(0,0,0,.35);
+      opacity:.9;
+    }
+
+    .reveal{animation:fadeUp .6s ease-out both}
+    @keyframes fadeUp{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:translateY(0)}}
+
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    // Domande (10 + 10) — difficoltà crescente
+    const qEdo = [
+      {q:'Chi canta "Bohemian Rhapsody"?',a:['Queen','AC/DC','Metallica','Nirvana'],c:0},
+      {q:'"Back in Black" è un album di…',a:['AC/DC','Queen','U2','Oasis'],c:0},
+      {q:'Cos’è un triage in pronto soccorso?',a:['Una terapia','Una classificazione di priorità','Un esame del sangue','Un vaccino'],c:1},
+      {q:'Quale tra questi è un parametro vitale?',a:['Pressione arteriosa','Colore occhi','Taglia scarpe','Preferenza musicale'],c:0},
+      {q:'Pornografia significa…',a:['Cucina regionale','Rappresentazione sessuale esplicita','Sport estremo','Stile pittorico'],c:1},
+      {q:'"Smells Like Teen Spirit" è dei…',a:['Nirvana','Pearl Jam','Radiohead','Muse'],c:0},
+      {q:'Nell’assistenza, la "privacy" del paziente riguarda…',a:['Solo le visite','La riservatezza dei dati e delle informazioni','Solo i referti cartacei','Solo il consenso alla terapia'],c:1},
+      {q:'Un DPI (in ambito sanitario) è…',a:['Dispositivo di Protezione Individuale','Diagnosi di Primo Intervento','Dose Post Iniezione','Documento Paziente Interno'],c:0},
+      {q:'In Italia la diffusione di contenuti pornografici a minori è…',a:['Consentita','Illecita/reato','Solo sconsigliata','Permessa con disclaimer'],c:1},
+      {q:'Un esempio classico di "glam metal" anni ’80?',a:['Mötley Crüe','The Cure','Daft Punk','The Smiths'],c:0},
+    ];
+
+    const qLuce = [
+      {q:'Chi ha dipinto la Gioconda?',a:['Michelangelo','Leonardo da Vinci','Raffaello','Caravaggio'],c:1},
+      {q:'Il "Rinascimento" è…',a:['Un farmaco','Un movimento artistico/culturale','Un genere musicale','Un formato file'],c:1},
+      {q:'RGB indica…',a:['Un tipo di carta','Un modello colore','Una tecnica scultorea','Una marca di pennelli'],c:1},
+      {q:'In ospedale, la cartella clinica serve a…',a:['Decorare la stanza','Documentare e coordinare le cure','Scegliere i turni','Fare marketing'],c:1},
+      {q:'Uno strumento tipico per creare un logo vettoriale?',a:['Illustrator','Word','Excel','Blocco Note'],c:0},
+      {q:'Van Gogh è noto soprattutto per…',a:['Scultura in bronzo','Pittura post-impressionista','Architettura gotica','Fotografia digitale'],c:1},
+      {q:'Un "font" è…',a:['Un tipo di carattere','Un filtro Instagram','Un farmaco','Un quadro'],c:0},
+      {q:'In grafica, un file SVG è…',a:['Un raster','Un vettoriale','Un audio','Un video'],c:1},
+      {q:'In infermieristica, la rilevazione parametri (PA, FC, SpO2) è…',a:['Solo estetica','Parte della valutazione del paziente','Un atto medico esclusivo','Facoltativa sempre'],c:1},
+      {q:'Nel colore, il "contrasto" serve principalmente a…',a:['Nascondere il testo','Migliorare leggibilità e gerarchia visiva','Ridurre la risoluzione','Eliminare i margini'],c:1},
+    ];
+
+    let score = 0;
+    let idx = 0;
+
+    const params = new URLSearchParams(location.search);
+    const mode = params.get('mode');
+
+    function giorgioneHeader(label){
+      const svg = `
+        <svg width='56' height='56' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg' aria-label='Giorgione'>
+          <rect x='2' y='2' width='60' height='60' rx='16' fill='#141418' stroke='#2f2f36' stroke-width='2'/>
+          <path d='M14 28c2-10 8-16 18-16s16 6 18 16' fill='#f1d2b7'/>
+          <path d='M16 30c0-10 6-18 16-18s16 8 16 18v8c0 10-8 18-16 18s-16-8-16-18z' fill='#f1d2b7'/>
+          <path d='M18 26c3-8 9-12 14-12s11 4 14 12' fill='#ffffff'/>
+          <path d='M20 24c4-8 10-10 12-10s8 2 12 10' fill='#ffffff' opacity='.85'/>
+          <circle cx='26' cy='36' r='3' fill='#1b1b1f'/>
+          <circle cx='38' cy='36' r='3' fill='#1b1b1f'/>
+          <path d='M26 44c4 4 8 4 12 0' fill='none' stroke='#1b1b1f' stroke-width='3' stroke-linecap='round'/>
+          <path d='M20 42c1 6 6 10 12 10s11-4 12-10' fill='none' stroke='#caa58c' stroke-width='2' opacity='.6'/>
+          <path d='M20 24l-4 8m32-8l4 8' stroke='#ffffff' stroke-width='3' stroke-linecap='round'/>
+        </svg>`;
+
+      return `
+        <div class='host'>
+          <div class='avatar'>${svg}</div>
+          <div class='bubble'>
+            <b>Giorgione</b>
+            <div>${label}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderQuiz(list, code, who){
+      const q = list[idx];
+      const modeLabel = `Ok ${who}! Domanda ${idx+1} di 10. (Serve almeno 7/10 per il codice.)`;
+
+      document.getElementById('app').innerHTML = `
+        <div class='card'>
+          ${giorgioneHeader(modeLabel)}
+          <h2 style='margin:6px 0 10px'>Domanda ${idx+1}/10</h2>
+          <p style='font-size:18px;line-height:1.35;margin:0 0 12px'>${q.q}</p>
+          ${q.a.map((x,i)=>`<button style='width:min(92vw,420px)' onclick='ans(${i},${q.c},"${code}","${who}")'>${x}</button>`).join('')}
+          <div style='margin-top:10px;opacity:.85;font-size:14px'>Punteggio attuale: <b>${score}</b></div>
+        </div>
+      `;
+    }
+
+    window.ans = function(i, c, code, who){
+      if(i === c) score++;
+      idx++;
+
+      if(idx < 10){
+        renderQuiz(mode === 'edo' ? qEdo : qLuce, code, who);
+      } else {
+        if(score >= 7){
+          location.href = '?mode=safe&pass=' + code;
+        } else {
+          document.getElementById('app').innerHTML = `
+            <div class='card'>
+              ${giorgioneHeader(`${who}, ci siamo andati vicini! Hai fatto ${score}/10: per il codice servono almeno 7.`)}
+              <h2>Non abbastanza risposte corrette 😅</h2>
+              <p style='opacity:.9'>Riprova: magari questa volta la cassaforte si apre!</p>
+              <button onclick='location.reload()'>Rigioca</button>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function renderSafe(){
+      document.getElementById('app').innerHTML = `
+        <div class='card safe-wrap'>
+          ${giorgioneHeader('Eccoci alla cassaforte! Inserite PRIMA il codice di LEI e POI quello di LUI.')}
+          <h2 style='margin:6px 0 2px'>🔐 Cassaforte</h2>
+          <div class='safe'>
+            <div class='hinge'></div>
+            <div class='display' id='disp'>------</div>
+            <div class='dial' title='Manopola (decorativa)'></div>
+          </div>
+          <div class='kbd'>
+            ${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick='press(${n})'>${n}</button>`).join('')}
+            <button onclick='clearInput()'>⌫</button>
+            <button onclick='press(0)'>0</button>
+            <button onclick='enter()'>OK</button>
+          </div>
+          <div class='hint'>Ordine richiesto: <b>LEI</b> → <b>LUI</b> (es. 666 poi 999)</div>
+          <div id='safeMsg' style='margin-top:10px;min-height:22px;opacity:.9'></div>
+        </div>
+      `;
+    }
+
+    let input = '';
+
+    window.press = function(n){
+      input += String(n);
+      document.getElementById('disp').innerText = input.padEnd(6,'-');
+      const msg = document.getElementById('safeMsg');
+      if(msg) msg.textContent = '';
+    }
+
+    window.clearInput = function(){
+      input = input.slice(0, -1);
+      document.getElementById('disp').innerText = (input || '').padEnd(6,'-');
+      const msg = document.getElementById('safeMsg');
+      if(msg) msg.textContent = '';
+    }
+
+    window.enter = function(){
+      const msg = document.getElementById('safeMsg');
+      if(input === '666999'){
+        document.getElementById('app').innerHTML = `
+          <div class='card'>
+            ${giorgioneHeader('Bravissimi! Cassaforte in apertura… 🍝✨')}
+            <h1 style='margin-bottom:6px'>🔓 Sblocco riuscito</h1>
+            <p style='margin-top:0;opacity:.9'>Tenetevi forte: si apre davvero!</p>
+
+            <div class='safe-anim'>
+              <div class='safe-stage' id='safeStage'>
+                <div class='safe' aria-hidden='true'></div>
+                <div class='door'>
+                  <div class='display'>666999</div>
+                  <div class='dial'></div>
+                  <div class='bolt'></div>
+                </div>
+              </div>
+            </div>
+
+            <div id='voucherWrap' class='hidden'>
+              <div class='voucher reveal'>
+                <div class='stamp'><span>VALIDO<br/>BUONO<br/>REGALO</span></div>
+                <div class='topline'>BUONO REGALO</div>
+                <div class='title'>🍽️ Cena per 2</div>
+                <div class='place'><b>All’Ora d’Aria</b> — Firenze</div>
+                <div class='note'>Da usare quando volete. Presentate questo buono (anche solo mostrando lo schermo). Buon appetito!</div>
+                <div class='fakeqr' title='QR (decorativo)'></div>
+              </div>
+
+              <div style='margin-top:14px'>
+                <button onclick='location.href="?mode=edo"'>Rigioca Edo</button>
+                <button onclick='location.href="?mode=luce"'>Rigioca Lucrezia</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // anima apertura porta + poi mostra voucher
+        const stage = document.getElementById('safeStage');
+        // piccola pausa per far renderizzare
+        setTimeout(()=>{
+          stage.classList.add('open');
+          setTimeout(()=>{
+            document.getElementById('voucherWrap').classList.remove('hidden');
+          }, 1100);
+        }, 120);
+      } else {
+        if(msg) msg.textContent = '❌ Codice errato. Ricordate: prima LEI poi LUI.';
+      }
+    }
+
+    // Router
+    if(mode === 'edo'){
+      renderQuiz(qEdo, '999', 'Edo');
+    } else if(mode === 'luce'){
+      renderQuiz(qLuce, '666', 'Lucrezia');
+    } else if(mode === 'safe'){
+      renderSafe();
+    } else {
+      document.getElementById('app').innerHTML = `
+        <div class='card'>
+          ${giorgioneHeader('Benvenuti! Scegliete il vostro quiz. Serve almeno 7/10 per ottenere il codice.')}
+          <h1 style='margin:8px 0 2px'>🎮 Mini Quiz</h1>
+          <p style='opacity:.9;margin-top:6px'>Edo e Lucrezia: ognuno ha il suo percorso. Alla fine… cassaforte 🔐</p>
+          <div style='margin-top:14px'>
+            <a href='?mode=edo'><button style='width:min(92vw,420px)'>Quiz di Edo</button></a>
+            <a href='?mode=luce'><button style='width:min(92vw,420px)'>Quiz di Lucrezia</button></a>
+            <a href='?mode=safe'><button style='width:min(92vw,420px);opacity:.9'>Vai alla Cassaforte</button></a>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
