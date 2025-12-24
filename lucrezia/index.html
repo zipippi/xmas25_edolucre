@@ -105,7 +105,7 @@
             <p class="small">Ti porto alla cassaforte… (Ricorda: prima LEI poi LVI)</p>
             <button onclick="goSafe()">Vai alla cassaforte</button>
           </div>`;
-        setTimeout(goSafe, 1800);
+        setTimeout(goSafe, 18000);
       } else {
         document.getElementById("app").innerHTML = `
           ${header(`Nope 😅 ${score}/10. Ne servono almeno 7.`)}
@@ -116,7 +116,7 @@
       }
     };
 
-    <!-- function goSafe(){ location.href = "../safe/index.html?from=lucrezia&code=666"; } -->
+    function goSafe(){ location.href = "../safe/index.html?from=lucrezia&code=666"; }
     function restart(){ idx=0; score=0; render(); }
 
     render();
