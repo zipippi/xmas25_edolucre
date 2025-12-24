@@ -72,13 +72,12 @@
   <div class="wrap">
     <div class="host">
       <div class="avatar"><img src="giorgione.png" alt="Giorgione"></div>
-      <div class="bubble"><b>Giorgione</b><div>Regola d’oro: inserisci <b>prima LEI</b> (666) e <b>poi LUI</b> (999).</div></div>
+      <div class="bubble"><div>Inserisci il codice della cassaforte: prima <b> LEI</b> e poi <b>LVI</b>.</div></div>
     </div>
 
     <div class="card">
       <h1>🔐 Cassaforte</h1>
-      <p><b>Ordine:</b> <b>666</b> → <b>999</b> (totale <b>666999</b>).</p>
-
+      
       <div class="safe-stage" id="stage">
         <div class="bodySafe"></div>
         <div class="hinge"></div>
@@ -105,9 +104,8 @@
       <div class="topline">BUONO REGALO</div>
       <div class="title">🍽️ Cena per 2</div>
       <div class="place"><b>All’Ora d’Aria</b> — Firenze</div>
-      <div class="note">Da usare quando volete. Presentate questo buono (anche solo mostrando lo schermo). Buon appetito!</div>
-      <div class="fakeqr" title="QR (decorativo)"></div>
-    </div>
+      <div class="note">Da usare quando volete entro un anno. Buon appetito!</div>
+      </div>
   </div>
 
   <script>
@@ -137,7 +135,7 @@
         stage.classList.add("open");
         setTimeout(()=>document.getElementById("voucher").classList.remove("hidden"), 1100);
       } else {
-        msg.innerHTML = `<div class="no">Codice errato ❌ (Prima LEI, poi LUI)</div>`;
+        msg.innerHTML = `<div class="no">Codice errato ❌</div>`;
       }
     };
 
