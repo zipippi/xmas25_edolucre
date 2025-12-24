@@ -102,9 +102,9 @@
         document.getElementById("app").innerHTML = `
           ${header(`Promosso ✅ Hai fatto ${score}/10. Codice sbloccato.`)}
           <div class="card">
-            <h2 class="right">CODICE EDO</h2>
+            <h2 class="right">Il tuo codice è</h2>
             <div class="codebox">999</div>
-            <p class="small">Ti porto alla cassaforte… (Ricorda: prima LEI poi LUI)</p>
+            <p class="small">Ti porto alla cassaforte… (Ricorda: prima LEI poi LVI)</p>
             <button onclick="goSafe()">Vai alla cassaforte</button>
           </div>`;
         setTimeout(goSafe, 1800);
@@ -118,7 +118,7 @@
       }
     };
 
-    function goSafe(){ location.href = "../safe/index.html?from=edo&code=999"; }
+    <!-- function goSafe(){ location.href = "../safe/index.html?from=edo&code=999"; } -->
     function restart(){ idx=0; score=0; render(); }
 
     render();
